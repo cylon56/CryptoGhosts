@@ -1,6 +1,6 @@
 require('babel-polyfill');
 
-var CryptoPunksMarket = artifacts.require("./CryptoPunksMarket.sol");
+var CryptoGhostsMarket = artifacts.require("./CryptoGhostsMarket.sol");
 
 var expectThrow = async function(promise) {
   try {
@@ -24,25 +24,25 @@ var expectThrow = async function(promise) {
   assert.fail('Expected throw not received');
 };
 
-contract('CryptoPunksMarket-getPunk', function (accounts) {
-  it("can not get punks while allPunksAssigned = false", async function () {
-    var contract = await CryptoPunksMarket.deployed();
+contract('CryptoGhostsMarket-getGhost', function (accounts) {
+  it("can not get punks while allGhostsAssigned = false", async function () {
+    var contract = await CryptoGhostsMarket.deployed();
     var balance = await contract.balanceOf.call(accounts[0]);
     console.log("Pre Balance: " + balance);
 
-    var allAssigned = await contract.allPunksAssigned.call();
+    var allAssigned = await contract.allGhostsAssigned.call();
     console.log("All assigned: " + allAssigned);
     assert.equal(false, allAssigned, "allAssigned should be false to start.");
-    await expectThrow(contract.getPunk(0));
+    await expectThrow(contract.getGhost(0));
     var balance = await contract.balanceOf.call(accounts[0]);
     console.log("Balance after fail: " + balance);
   }),
   it("can get a punk but no one else can get it after", async function () {
-    var contract = await CryptoPunksMarket.deployed();
+    var contract = await CryptoGhostsMarket.deployed();
 
     await contract.allInitialOwnersAssigned();
 
-    await contract.getPunk(0);
+    await contract.getGhost(0);
     var balance = await contract.balanceOf.call(accounts[0]);
     console.log("Balance: " + balance);
     assert.equal(balance.valueOf(), 1, "Didn't get the initial punk");
@@ -52,7 +52,7 @@ contract('CryptoPunksMarket-getPunk', function (accounts) {
     assert.equal(9999, remaining);
 
     try {
-      await contract.getPunk(0);
+      await contract.getGhost(0);
       assert(false, "Should have thrown exception.");
     } catch (err) {
       // Should catch an exception

@@ -1,6 +1,6 @@
 require('babel-polyfill');
 
-var CryptoPunksMarket = artifacts.require("./CryptoPunksMarket.sol");
+var CryptoGhostsMarketSale = artifacts.require("./CryptoGhostsMarket.sol");
 
 var expectThrow = async function (promise) {
   try {
@@ -36,76 +36,76 @@ var compareBalance = function(previousBalance, currentBalance, amount) {
 
 var NULL_ACCOUNT = "0x0000000000000000000000000000000000000000";
 
-contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
-  it("can not offer for sale allPunksAssigned = false", async function () {
-    var contract = await CryptoPunksMarket.deployed();
+contract('CryptoGhostsMarketSale', function (accounts) {
+  it("can not offer for sale allGhostsAssigned = false", async function () {
+    var contract = await CryptoGhostsMarket.deployed();
     await contract.setInitialOwner(accounts[0], 0);
-    var allAssigned = await contract.allPunksAssigned.call();
+    var allAssigned = await contract.allGhostsAssigned.call();
     assert.equal(false, allAssigned, "allAssigned should be false to start.");
-    await expectThrow(contract.offerPunkForSale(0, 1000));
+    await expectThrow(contract.offerGhostForSale(0, 1000));
   }),
-    it("can offer a punk", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+    it("can offer a ghost", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
 
       await contract.setInitialOwner(accounts[1], 1);
       await contract.setInitialOwner(accounts[2], 2);
       await contract.allInitialOwnersAssigned();
 
-      await contract.offerPunkForSale(0, 1000);
+      await contract.offerGhostForSale(0, 1000);
 
-      var offer = await contract.punksOfferedForSale.call(0);
+      var offer = await contract.ghostsOfferedForSale.call(0);
       console.log("Offer: " + offer);
-      assert.equal(true, offer[0], "Punk 0 not for sale");
+      assert.equal(true, offer[0], "Ghost 0 not for sale");
       assert.equal(0, offer[1]);
       assert.equal(accounts[0], offer[2]);
       assert.equal(1000, offer[3]);
       assert.equal(NULL_ACCOUNT, offer[4]);
     }),
-    it("can not buy a punk that is not for sale", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+    it("can not buy a ghost that is not for sale", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
 
-      await expectThrow(contract.buyPunk(1, 10000000));
+      await expectThrow(contract.buyGhost(1, 10000000));
     }),
-    it("can not buy a punk for too little money", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+    it("can not buy a ghost for too little money", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
 
       var ethBalance = await web3.eth.getBalance(accounts[1]);
       console.log("Account 1 has " + ethBalance + " Wei");
       assert(ethBalance > 0);
-      await expectThrow(contract.buyPunk(0, {from: accounts[1], value: 10}));
+      await expectThrow(contract.buyGhost(0, {from: accounts[1], value: 10}));
     }),
-    it("can not offer a punk with an invalid index", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await expectThrow(contract.offerPunkForSale(100000, 1000));
+    it("can not offer a ghost with an invalid index", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
+      await expectThrow(contract.offerGhostForSale(100000, 1000));
     }),
-    it("can not buy a punk with an invalid index", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await expectThrow(contract.buyPunk(100000, {value: 10000000}));
+    it("can not buy a ghost with an invalid index", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
+      await expectThrow(contract.buyGhost(100000, {value: 10000000}));
     }),
-    it("can buy a punk that is for sale", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await contract.buyPunk(0, {from: accounts[1], value: 1000});
+    it("can buy a ghost that is for sale", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
+      await contract.buyGhost(0, {from: accounts[1], value: 1000});
 
-      var offer = await contract.punksOfferedForSale.call(0);
+      var offer = await contract.ghostsOfferedForSale.call(0);
       console.log("Offer post purchase: " + offer);
-      assert.equal(false, offer[0], "Punk 0 not for sale");
+      assert.equal(false, offer[0], "Ghost 0 not for sale");
       assert.equal(0, offer[1]);
       assert.equal(0, offer[3]);
       assert.equal(NULL_ACCOUNT, offer[4]);
 
       var balance = await contract.balanceOf.call(accounts[0]);
       // console.log("Balance acc0: " + balance);
-      assert.equal(balance.valueOf(), 0, "Punk balance account 0 incorrect");
+      assert.equal(balance.valueOf(), 0, "Ghost balance account 0 incorrect");
       var balance1 = await contract.balanceOf.call(accounts[1]);
       // console.log("Balance acc1: " + balance1);
-      assert.equal(balance1.valueOf(), 2, "Punk balance account 1 incorrect");
+      assert.equal(balance1.valueOf(), 2, "Ghost balance account 1 incorrect");
 
       var balanceToWidthdraw = await contract.pendingWithdrawals.call(accounts[0]);
       assert.equal(balanceToWidthdraw.valueOf(), 1000, "Balance not available to withdraw.");
 
     }),
     it("can withdraw money from sale", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+      var contract = await CryptoGhostsMarket.deployed();
       var accountBalancePrev = await web3.eth.getBalance(accounts[0]);
       await contract.withdraw();
       var accountBalance = await web3.eth.getBalance(accounts[0]);
@@ -115,11 +115,11 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
       assert.equal(balanceToWidthdraw.valueOf(), 0);
     }),
     it("can offer for sale then withdraw", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+      var contract = await CryptoGhostsMarket.deployed();
 
-      await contract.offerPunkForSale(1, 1333, {from: accounts[1]});
+      await contract.offerGhostForSale(1, 1333, {from: accounts[1]});
 
-      var offer = await contract.punksOfferedForSale.call(1);
+      var offer = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer: " + offer);
       assert.equal(true, offer[0]);
       assert.equal(1, offer[1]);
@@ -127,9 +127,9 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
       assert.equal(1333, offer[3]);
       assert.equal(NULL_ACCOUNT, offer[4]);
 
-      await contract.punkNoLongerForSale(1, {from: accounts[1]});
+      await contract.ghostNoLongerForSale(1, {from: accounts[1]});
 
-      var offerPost = await contract.punksOfferedForSale.call(1);
+      var offerPost = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer: " + offer);
       assert.equal(false, offerPost[0]);
       assert.equal(1, offerPost[1]);
@@ -138,15 +138,15 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
       assert.equal(NULL_ACCOUNT, offerPost[4]);
 
       // Can't buy it either
-      await expectThrow(contract.buyPunk(1, {value: 10000000}));
+      await expectThrow(contract.buyGhost(1, {value: 10000000}));
 
     }),
     it("can offer for sale to specific account", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+      var contract = await CryptoGhostsMarket.deployed();
 
-      await contract.offerPunkForSaleToAddress(1, 1333, accounts[0], {from: accounts[1]});
+      await contract.offerGhostForSaleToAddress(1, 1333, accounts[0], {from: accounts[1]});
 
-      var offer = await contract.punksOfferedForSale.call(1);
+      var offer = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer: " + offer);
       assert.equal(true, offer[0]);
       assert.equal(1, offer[1]);
@@ -155,12 +155,12 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
       assert.equal(accounts[0], offer[4]);
 
       // Account 2 can't buy it
-      await expectThrow(contract.buyPunk(1, {from: accounts[2], value: 10000000}));
+      await expectThrow(contract.buyGhost(1, {from: accounts[2], value: 10000000}));
 
       // Acccount 0 can though
-      await contract.buyPunk(1, {from: accounts[0], value: 1333});
+      await contract.buyGhost(1, {from: accounts[0], value: 1333});
 
-      var offerPost = await contract.punksOfferedForSale.call(1);
+      var offerPost = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer: " + offer);
       assert.equal(false, offerPost[0]);
       assert.equal(1, offerPost[1]);
@@ -170,17 +170,17 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
 
       var balance = await contract.balanceOf.call(accounts[0]);
       // console.log("Balance acc0: " + balance);
-      assert.equal(balance.valueOf(), 1, "Punk balance account 0 incorrect");
+      assert.equal(balance.valueOf(), 1, "Ghost balance account 0 incorrect");
       var balance1 = await contract.balanceOf.call(accounts[1]);
       // console.log("Balance acc1: " + balance1);
-      assert.equal(balance1.valueOf(), 1, "Punk balance account 1 incorrect");
+      assert.equal(balance1.valueOf(), 1, "Ghost balance account 1 incorrect");
 
       var balanceToWidthdraw = await contract.pendingWithdrawals.call(accounts[1]);
       assert.equal(balanceToWidthdraw.valueOf(), 1333, "Balance not available to withdraw.");
 
     }),
     it("can withdraw money from sale to specific account", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+      var contract = await CryptoGhostsMarket.deployed();
       var accountBalancePrev = await web3.eth.getBalance(accounts[1]);
       await contract.withdraw({from: accounts[1]});
       var accountBalance = await web3.eth.getBalance(accounts[1]);
@@ -191,10 +191,10 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
 
     }),
     it("transfer should cancel offers", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await contract.offerPunkForSale(1, 2333);
+      var contract = await CryptoGhostsMarket.deployed();
+      await contract.offerGhostForSale(1, 2333);
 
-      var offer = await contract.punksOfferedForSale.call(1);
+      var offer = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer: " + offer);
       assert.equal(true, offer[0]);
       assert.equal(1, offer[1]);
@@ -202,9 +202,9 @@ contract('CryptoPunksMarket-buySellRemoveFromSale', function (accounts) {
       assert.equal(2333, offer[3]);
       assert.equal(NULL_ACCOUNT, offer[4]);
 
-      await contract.transferPunk(accounts[1], 1);
+      await contract.transferGhost(accounts[1], 1);
 
-      var offer = await contract.punksOfferedForSale.call(1);
+      var offer = await contract.ghostsOfferedForSale.call(1);
       console.log("Offer post transfer: " + offer);
       assert.equal(false, offer[0]);
       assert.equal(1, offer[1]);

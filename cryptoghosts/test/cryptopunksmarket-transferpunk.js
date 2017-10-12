@@ -1,6 +1,6 @@
 require('babel-polyfill');
 
-var CryptoPunksMarket = artifacts.require("./CryptoPunksMarket.sol");
+var CryptoGhostsMarket = artifacts.require("./CryptoGhostsMarket.sol");
 
 var expectThrow = async function (promise) {
   try {
@@ -24,40 +24,40 @@ var expectThrow = async function (promise) {
   assert.fail('Expected throw not received');
 };
 
-contract('CryptoPunksMarket-transferPunk', function (accounts) {
-  it("can not get transfer punk allPunksAssigned = false", async function () {
-    var contract = await CryptoPunksMarket.deployed();
+contract('CryptoGhostsMarket-transferGhost', function (accounts) {
+  it("can not get transfer ghost allGhostsAssigned = false", async function () {
+    var contract = await CryptoGhostsMarket.deployed();
     await contract.setInitialOwner(accounts[0], 0);
-    var allAssigned = await contract.allPunksAssigned.call();
+    var allAssigned = await contract.allGhostsAssigned.call();
     assert.equal(false, allAssigned, "allAssigned should be false to start.");
-    await expectThrow(contract.transferPunk(accounts[1], 0));
+    await expectThrow(contract.transferGhost(accounts[1], 0));
   }),
-    it("can transfer a punk to someone else", async function () {
-      var contract = await CryptoPunksMarket.deployed();
+    it("can transfer a ghost to someone else", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
 
       // Initial owner set in previous test :|
       // await contract.setInitialOwner(accounts[0], 0);
       await contract.allInitialOwnersAssigned();
-      await contract.transferPunk(accounts[1], 0);
+      await contract.transferGhost(accounts[1], 0);
 
-      var owner = await contract.punkIndexToAddress.call(0);
-      assert.equal(owner, accounts[1], "Punk not owned by transfer recipient");
+      var owner = await contract.ghostIndexToAddress.call(0);
+      assert.equal(owner, accounts[1], "Ghost not owned by transfer recipient");
 
       var balance = await contract.balanceOf.call(accounts[0]);
       // console.log("Balance acc0: " + balance);
-      assert.equal(balance.valueOf(), 0, "Punk balance account 0 incorrect");
+      assert.equal(balance.valueOf(), 0, "Ghost balance account 0 incorrect");
       var balance1 = await contract.balanceOf.call(accounts[1]);
       // console.log("Balance acc1: " + balance1);
-      assert.equal(balance1.valueOf(), 1, "Punk balance account 1 incorrect");
+      assert.equal(balance1.valueOf(), 1, "Ghost balance account 1 incorrect");
 
     }),
-    it("can not transfer someone else's punk", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await expectThrow(contract.transferPunk(accounts[2], 0));  // Now owned by account[1]
+    it("can not transfer someone else's ghost", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
+      await expectThrow(contract.transferGhost(accounts[2], 0));  // Now owned by account[1]
     }),
-    it("can not use invalid punk index", async function () {
-      var contract = await CryptoPunksMarket.deployed();
-      await expectThrow(contract.transferPunk(accounts[1], 10000));
+    it("can not use invalid ghost index", async function () {
+      var contract = await CryptoGhostsMarket.deployed();
+      await expectThrow(contract.transferGhost(accounts[1], 10000));
     })
 
 });
