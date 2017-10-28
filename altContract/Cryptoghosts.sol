@@ -53,7 +53,7 @@ contract Cryptoghosts {
 
   function safeAdd(uint x, uint y) private returns (uint z) {
     z = x + y;
-    assert(z >= x);
+    assert((z - x) == y);
     return z;
   }
 
